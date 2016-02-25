@@ -6,25 +6,25 @@
 /*   By: mchevall <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/01 12:50:01 by mchevall          #+#    #+#             */
-/*   Updated: 2016/02/23 17:47:33 by mchevall         ###   ########.fr       */
+/*   Updated: 2016/02/25 18:28:24 by mchevall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-static int			ischar(char *line)
+void				ischar(char *line)
 {
 	int			i;
 
 	i = 0;
-	while (ft_isdigit(line[i]) != 0 || line[i] == ' ' || line [i] == '\0' ||
+	while (ft_isdigit(line[i]) != 0 || line[i] == ' ' || line[i] == '\0' ||
 			line[i] == '-')
 	{
 		if (line[i] == '\0')
-			return (-1);
+			return ;
 		i++;
 	}
-	return (0);
+	ft_error();
 }
 
 static t_param		*event_initializer(t_param *event)
@@ -38,38 +38,43 @@ static t_param		*event_initializer(t_param *event)
 	return (event);
 }
 
+static void			event_maker(t_param *event, char **argv)
+{
+	ft_maptoint(event);
+	event->mlx_ptr = mlx_init();
+	event->mlx_win = mlx_new_window(event->mlx_ptr, MAP_W, MAP_H, "F");
+	horizontal_sweep(event);
+	vertical_sweep(event);
+	mlx_string_put(event->mlx_ptr, event->mlx_win, MAP_W / 2, 100, 0xFFFFFF,
+			argv[1]);
+	mlx_key_hook(event->mlx_win, on_esc_exit, 0);
+	mlx_loop(event->mlx_ptr);
+}
+
 int					main(int argc, char **argv)
 {
-	char	*line;
-	int		fd;
-	int		i;
-	int		j;
+	char		*line;
+	int			fd;
+	int			i;
 	t_param		*event;
+
 	event = NULL;
+	i = 0;
 	if (argc == 2)
 	{
-
-		i = 0;
-		j = 0;
 		event = event_initializer(event);
 		fd = clean_open(argv[1], O_RDONLY);
 		while (get_next_line(fd, &line))
 		{
-			if (ischar(line) != -1)
-				ft_error();
+			ischar(line);
 			event->map[i] = ft_strsplit(line, ' ');
 			i++;
 		}
 		if (line)
 		{
 			ft_strdel(&line);
-			ft_maptoint(event);
-			event->mlx_ptr = mlx_init();
-			event->mlx_win = mlx_new_window(event->mlx_ptr, MAP_W + 600, MAP_H + 400, "F");
-			horizontal_sweep(event);
-			vertical_sweep(event);
-			mlx_key_hook(event->mlx_win, on_esc_exit, 0);
-			mlx_loop(event->mlx_ptr);
+			event_maker(event, argv);
 		}
 	}
+	return (0);
 }

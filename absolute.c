@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   on_esc_exit.c                                      :+:      :+:    :+:   */
+/*   absolute.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mchevall <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/02/02 15:38:51 by mchevall          #+#    #+#             */
-/*   Updated: 2016/02/24 15:16:18 by mchevall         ###   ########.fr       */
+/*   Created: 2016/02/24 15:37:11 by mchevall          #+#    #+#             */
+/*   Updated: 2016/02/24 15:37:58 by mchevall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf.h"
-
-int		on_esc_exit(int keycode)
+float		absolute(float nb)
 {
-	if (keycode == 53)
-		exit(EXIT_SUCCESS);
-	return (0);
+	if (nb < 0)
+		nb = -nb;
+	return (nb);
 }

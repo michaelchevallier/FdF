@@ -6,13 +6,13 @@
 /*   By: mchevall <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/16 17:23:18 by mchevall          #+#    #+#             */
-/*   Updated: 2016/02/23 17:44:10 by mchevall         ###   ########.fr       */
+/*   Updated: 2016/02/25 18:00:22 by mchevall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void		hor_line_tracer(t_param *event, t_coord *coord)
+void		hor_line_tracer(t_param *event, t_coord *coord, int color)
 {
 	int		i;
 	int		len;
@@ -21,7 +21,8 @@ void		hor_line_tracer(t_param *event, t_coord *coord)
 	len = coord->x1 - coord->x0;
 	while (i != len)
 	{
-		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + i, coord->y0, 0x00FF00);
+		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + i, coord->y0,
+				color);
 		if (len >= 0)
 			i++;
 		else
@@ -29,7 +30,7 @@ void		hor_line_tracer(t_param *event, t_coord *coord)
 	}
 }
 
-void		vert_line_tracer(t_param *event, t_coord *coord)
+void		vert_line_tracer(t_param *event, t_coord *coord, int color)
 {
 	int		i;
 	int		len;
@@ -38,7 +39,8 @@ void		vert_line_tracer(t_param *event, t_coord *coord)
 	len = coord->y1 - coord->y0;
 	while (i != len)
 	{
-		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0, coord->y0 + i, 0x00FF00);
+		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0, coord->y0 + i,
+				color);
 		if (len >= 0)
 			i++;
 		else
@@ -46,71 +48,69 @@ void		vert_line_tracer(t_param *event, t_coord *coord)
 	}
 }
 
-float	absolute(float nb)
+void		superior_diag_tracer(t_param *event, t_coord *coord, int color)
 {
-	if (nb < 0)
-		nb = -nb;
-	return(nb);
+	while (absolute(coord->i) != absolute(coord->len_x))
+	{
+		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + coord->i,
+				coord->y0 - coord->j, color);
+		if (coord->len_y < 0)
+			coord->j++;
+		else
+			coord->j--;
+		if (absolute(coord->j / (absolute(coord->i) + 1)) >
+				absolute(coord->coeff))
+		{
+			if (coord->len_x < 0)
+				coord->i--;
+			else
+				coord->i++;
+		}
+	}
+	coord->i = 0;
 }
-void		diag_line_tracer(t_param *event, t_coord *coord)
-{
-	float				k;
-	float			len_x;
-	float			len_y;
-	float			coeff;
-	float			n;
 
-	len_x = coord->x1 - coord->x0;
-	len_y = coord->y1 - coord->y0;
-	coeff = 0;
-	k = 0;
-	n = 0;
-	if (len_x == 0)
+void		minor_diag_tracer(t_param *event, t_coord *coord, int color)
+{
+	while (coord->len_y != coord->i)
 	{
-		vert_line_tracer(event, coord);
-		return ;
-	}
-	else if (len_y == 0)
-	{
-		hor_line_tracer(event, coord);
-		return ;
-	}
-	coeff = len_y / len_x;
-	if (absolute(coeff) >= 1)
-	{
-		while (absolute(k) != absolute(len_x))
+		mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + coord->j,
+				coord->y0 + coord->i, color);
+		if (coord->len_y < 0)
+			coord->j++;
+		else
+			coord->j--;
+		if (absolute(coord->j / (absolute(coord->i) + 1)) >=
+				absolute(1 / coord->coeff))
 		{
-			mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + k + 1, coord->y0 - n, 0xFF0000);
-			if (len_y < 0 )
-				n++;
+			if (coord->len_x < 0)
+				coord->i++;
 			else
-				n--;
-			if (absolute(n / (absolute(k) + 1)) > absolute(coeff))
-			{
-				if (len_x < 0)
-					k--;
-				else
-					k++;
-			}
-		}
-		k = 0;
-	}
-	else if (absolute(coeff) < 1 && absolute(coeff) > 0)
-	{
-		while (len_y != k)
-		{
-			mlx_pixel_put(event->mlx_ptr, event->mlx_win, coord->x0 + n, coord->y0 + k , 0xFFFFFF);
-			if (len_y < 0)
-				n++;
-			else
-				n--;
-			if (absolute(n / (absolute(k) + 1)) >= absolute(1 / coeff))
-			{
-				if (len_x < 0)
-					k++;
-				else
-					k--;
-			}
+				coord->i--;
 		}
 	}
+}
+
+void		diag_line_tracer(t_param *event, t_coord *coord, int color)
+{
+	coord->len_x = coord->x1 - coord->x0;
+	coord->len_y = coord->y1 - coord->y0;
+	coord->coeff = 0;
+	coord->i = 0;
+	coord->j = 0;
+	if (coord->len_x == 0)
+	{
+		vert_line_tracer(event, coord, color);
+		return ;
+	}
+	else if (coord->len_y == 0)
+	{
+		hor_line_tracer(event, coord, color);
+		return ;
+	}
+	coord->coeff = coord->len_y / coord->len_x;
+	if (absolute(coord->coeff) >= 1)
+		superior_diag_tracer(event, coord, color);
+	else if (absolute(coord->coeff) < 1 && absolute(coord->coeff) > 0)
+		minor_diag_tracer(event, coord, color);
 }
