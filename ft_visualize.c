@@ -6,62 +6,64 @@
 /*   By: mchevall <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/15 17:47:26 by mchevall          #+#    #+#             */
-/*   Updated: 2016/02/25 18:33:43 by mchevall         ###   ########.fr       */
+/*   Updated: 2016/03/17 17:22:42 by mchevall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void				horizontal_sweep(t_param *event)
+void				horizontal_sweep(t_param *e)
 {
 	int		i;
 	int		j;
-	t_coord	*coord;
+	t_coord	*c;
 
 	i = -1;
 	j = 0;
-	coord = (t_coord *)ft_memalloc(sizeof(t_coord));
-	while (event->intmap[++i])
+	c = (t_coord *)ft_memalloc(sizeof(t_coord));
+	while (e->intmap[++i])
 	{
-		coord->x1 = OW + PX * (j - i);
-		coord->y1 = OH + PX * (i - event->intmap[i][j] * (CZ) + j);
-		coord->x0 = coord->x1;
-		coord->y0 = coord->y1;
-		while (j <= event->maplen[i])
+		c->x1 = e->ow + e->px * (j - i);
+		c->y1 = e->oh + e->px * (i - e->intmap[i][j] * e->cz);
+		c->x0 = c->x1;
+		c->y0 = c->y1;
+		while (j <= e->maplen[i])
 		{
-			coord->x1 = OW + PX * (j - i);
-			coord->y1 = OH + PX * (i - event->intmap[i][j] * (CZ) + j);
-			diag_line_tracer(event, coord, 0xFFFFFF - COLOR);
-			coord->x0 = coord->x1;
-			coord->y0 = coord->y1;
+			c->x1 = e->ow + e->px * (j - i);
+			c->y1 = e->oh + e->px *
+				(i - e->intmap[i][j] * e->cz);
+			diag_line_tracer(e, c);
+			c->x0 = c->x1;
+			c->y0 = c->y1;
 			j++;
 		}
 		j = 0;
 	}
 }
 
-void				vertical_sweep(t_param *event)
+void				vertical_sweep(t_param *e)
 {
 	int		i;
 	int		j;
-	t_coord	*coord;
+	t_coord	*c;
 
 	i = 0;
 	j = -1;
-	coord = (t_coord *)ft_memalloc(sizeof(t_coord));
-	while (++j <= event->maplen[i])
+	c = (t_coord *)ft_memalloc(sizeof(t_coord));
+	while (++j <= e->maplen[i])
 	{
-		coord->x1 = OW + PX * (j - i);
-		coord->y1 = OH + PX * (i - event->intmap[i][j] * (CZ) + j);
-		coord->x0 = coord->x1;
-		coord->y0 = coord->y1;
-		while (event->intmap[i])
+		c->x1 = e->ow + e->px * (j - i);
+		c->y1 = e->oh + e->px *
+			(i - e->intmap[i][j] * e->cz) - 1;
+		c->x0 = c->x1;
+		c->y0 = c->y1;
+		while (e->intmap[i])
 		{
-			coord->x1 = OW + PX * (j - i);
-			coord->y1 = OH + PX * (i - event->intmap[i][j] * (CZ) + j);
-			diag_line_tracer(event, coord, 0xFFFFFF - COLOR);
-			coord->x0 = coord->x1;
-			coord->y0 = coord->y1;
+			c->x1 = e->ow + e->px * (j - i) - 1;
+			c->y1 = e->oh + e->px * (i - e->intmap[i][j] * e->cz);
+			diag_line_tracer(e, c);
+			c->x0 = c->x1;
+			c->y0 = c->y1;
 			i++;
 		}
 		i = 0;

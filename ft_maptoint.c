@@ -6,7 +6,7 @@
 /*   By: mchevall <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/01 15:12:23 by mchevall          #+#    #+#             */
-/*   Updated: 2016/02/18 13:55:10 by mchevall         ###   ########.fr       */
+/*   Updated: 2016/03/17 18:17:52 by mchevall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@ void		ft_maptoint(t_param *event)
 		while (event->map[i][j])
 		{
 			event->intmap[i][j] = ft_atoi(event->map[i][j]);
+			if (event->intmap[i][j] >= event->maxz)
+				event->maxz = event->intmap[i][j];
+			if (event->maxz == 0)
+				event->maxz = 1;
 			j++;
 		}
 		event->maplen[i] = j;
@@ -32,4 +36,5 @@ void		ft_maptoint(t_param *event)
 		i++;
 	}
 	event->intmap[i] = NULL;
+	event->maplen[i] = -1;
 }
